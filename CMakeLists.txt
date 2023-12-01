@@ -20,3 +20,4 @@ if(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 endif()
 
 add_executable(DayOneQ1 ${CMAKE_CURRENT_SOURCE_DIR}/src/DayOneQ1.cpp)
+add_executable(DayOneQ2 ${CMAKE_CURRENT_SOURCE_DIR}/src/DayOneQ2.cpp)
