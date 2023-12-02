@@ -22,7 +22,7 @@ int tryFindDigitSpellingRev(const std::string &str, int offset);
 
 int main(){
     //load contents of file
-    std::ifstream infile("puzzle_input/DayOne.txt");
+    std::ifstream infile("puzzle_input/DayOne/DayOne.txt");
     std::string input{};
     long long summation = 0;
     int linenumber = 1;
