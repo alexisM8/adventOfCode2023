@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <cctype>
+#include <stack>
 
 /*
 The missing part wasn't the only issue - one of the gears in the
@@ -35,22 +36,17 @@ In this schematic, there are two gears. The first is in the top left;
 What is the sum of all of the gear ratios in your engine schematic?
 */
 
-static constexpr char file_path[] = "puzzle_input/DayThree/DayThreeSample.txt";
+static constexpr char file_path[] = "puzzle_input/DayThree/DayThree.txt";
 
 std::vector<std::string> splitString(const std::string& str, char delimiter);
-std::ostream& operator <<(std::ostream& o, const std::vector<std::string>& vec);
-int checkGearRatios(const std::vector<std::string>& vec, int row, int col);
-int checkLeft(const std::vector<std::string>& vec, int row, int col);
-int checkRight(const std::vector<std::string>& vec, int row, int col);
-int checkTop(const std::vector<std::string>& vec, int row, int col);
-int checkBottom(const std::vector<std::string>& vec, int row, int col);
+void checkForAdjacentGear(const std::vector<std::string>& vec, int row, int col, long long& gear_summation);
 
-int main(){
+int main() {
     std::ifstream input(file_path);
-    int summation = 0;
+    long long gear_summation = 0;
     
     if(input.fail()){
-        std::cerr << "Error: could not open file" << file_path << "\n";
+        std::cerr << "Error: could not open file " << file_path << "\n";
         exit(1);
     }
 
@@ -61,15 +57,14 @@ int main(){
     auto tokens = splitString(file_contents, '\n');
 
     for(int row = 0; row < tokens.size(); row++){
-        int length = 0;
         for(int col = 0; col < tokens[row].size(); col++){
-            if (tokens[row][col] == '*') {
-                int gearRatio = checkGearRatios(tokens, row, col);
-                summation += gearRatio;
+            if(tokens[row][col] == '*'){
+                checkForAdjacentGear(tokens, row, col, gear_summation);
             }
         }
     }
-    std::cout << "summation: " << summation << "\n";
+
+    std::cout << "Summation of gear ratios: " << gear_summation << "\n";
     return 0;
 }
 
@@ -85,84 +80,48 @@ std::vector<std::string> splitString(const std::string& str, char delimiter){
     return tokens;
 }
 
-std::ostream& operator <<(std::ostream& o, const std::vector<std::string>& vec){
-    for(auto &token : vec){
-        o << token << "\n";
+void checkForAdjacentGear(const std::vector<std::string>& vec, int row, int col, long long& gear_summation){
+    /*
+                   col
+                    ↓                   
+              4 6 7 . . .
+        row → . . . * . .
+              . . 3 5 . .
+    */
+    std::vector<int> adjacent_numbers; // Store adjacent numbers found around '*'
+    std::stack<char> stack;
+    std::vector<std::vector<bool>> visited(vec.size(), std::vector<bool>(vec[0].size(), false)); // Track visited positions
+
+    for(int i = row - 1; i <= row + 1; ++i){
+        for(int j = col - 1; j <= col + 1; ++j){
+            if(i >= 0 && i < vec.size() && j >= 0 && j < vec[row].size()){
+                if(isdigit(vec[i][j]) && !visited[i][j]){
+                    std::string number;
+                    int k = j;
+                    while(k <= vec[i].size() && isdigit(vec[i][k])){
+                        k++;
+                    }
+                    k--;
+                    while(k >= 0 && isdigit(vec[i][k])){
+                        stack.push(vec[i][k]);
+                        visited[i][k] = true; // Mark position as visited
+                        k--;
+                    }
+                    while(!stack.empty()){
+                        number.push_back(stack.top());
+                        stack.pop();
+                    }
+                    std::cout << "number: "  << number << "\n";
+                    int num = std::stoi(number);
+                    adjacent_numbers.push_back(num);
+                    number.clear();
+                }
+            }
+        }
     }
-    return o;
-}
 
-int checkRight(const std::vector<std::string>& vec, int row, int col){
-    if(vec[row][col] == '*'){
-        int length = 0;
-        int tempcol = col+1;
-        while(tempcol < vec[row].size() && isdigit(vec[row][tempcol])){
-            length++;
-            tempcol++;
-        }
-        if(length > 0){
-            return std::stoi(vec[row].substr(col+1, length));
-        }else{
-            return -1;
-        }
-    }else{
-        return -1;
-    }
-}
-
-int checkLeft(const std::vector<std::string>& vec, int row, int col){
-    if (vec[row][col] == '*') {
-        int length = 0;
-        int tempcol = col - 1;
-        while (tempcol >= 0 && isdigit(vec[row][tempcol])) {
-            length++;
-            tempcol--;
-        }
-        if (length > 0) {
-            return std::stoi(vec[row].substr(col - length, length));
-        } else {
-            return -1;
-        }
-    } else {
-        return -1;
-    }
-}
-
-int checkTop(const std::vector<std::string>& vec, int row, int col) {
-    if (vec[row][col] == '*') {
-        int leftNum = checkLeft(vec, row-1, col);
-        int rightNum = checkRight(vec, row-1, col);
-        if (leftNum != -1 && rightNum != -1) {
-            return leftNum * rightNum;
-        }
-    } else {
-        return -1;
-    }
-}
-
-int checkBottom(const std::vector<std::string>& vec, int row, int col) {
-    if (vec[row][col] == '*') {
-        int leftNum = checkLeft(vec, row+1, col);
-        int rightNum = checkRight(vec, row+1, col);
-        if (leftNum != -1 && rightNum != -1) {
-            return leftNum * rightNum;
-        }
-    } else {
-        return -1;
-    }
-}
-
-int checkGearRatios(const std::vector<std::string>& vec, int row, int col){
-    int leftNum = checkLeft(vec, row, col);
-    int rightNum = checkRight(vec, row, col);
-    int topNum = checkTop(vec, row, col);
-    int bottomNum = checkBottom(vec, row, col);
-
-    if (leftNum != -1 && rightNum != -1) {
-        return leftNum * rightNum;
-    } else if (topNum != -1 && bottomNum != -1) {
-        return topNum + bottomNum;
-    } else {
-        return 0; // No valid gear ratio found
+    if(adjacent_numbers.size() == 2){
+        std::cout << "num1: " << adjacent_numbers[0] << " num2: " << adjacent_numbers[1] << "\n";
+        gear_summation += (long long)adjacent_numbers[0] * adjacent_numbers[1];
     }
 }
