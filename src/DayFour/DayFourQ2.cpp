@@ -3,7 +3,7 @@
 #include <vector>
 #include <sstream>
 #include <set>
-#include <unordered_map>
+#include <map>
 
 /*
 you win copies of the scratchcards below the winning card equal 
@@ -62,17 +62,17 @@ Process all of the original and copied scratchcards
     do you end up with?
 */
 
-static constexpr char file_path[] = "puzzle_input/DayFour/DayFourSampleStripped.txt";
+static constexpr char file_path[] = "puzzle_input/DayFour/DayFourStripped.txt";
 
 std::vector<std::string> splitString(const std::string& str, char delimiter);
 std::set<int> toset(const std::string& winningnumbers);
 std::optional<int> stringToInt(const std::string& str);
 std::ostream& operator <<(std::ostream& o, const std::set<int>& set);
-void fillmap(std::unordered_map<int, int>& map);
+void fillmap(std::map<int, int>& map);
 
 int main() {
     std::ifstream input(file_path);
-    std::unordered_map<int, int> cards;
+    std::map<int, int> cards;
     fillmap(cards);
     int summation = 0;
     
@@ -86,33 +86,37 @@ int main() {
     std::string file_contents{ ss.str() };
 
     auto tokens = splitString(file_contents, '\n');
-    for(const auto& token : tokens){
-        for(auto [winner, copies]: cards){
-            for(int i = 0; i < copies; i++){
-                int count = 0;
-                auto values = splitString(token, '|');
-                auto winningnumbers = toset(values[0]);
-                auto nums = splitString(values[1], ' ');
-                for(const auto& num : nums){
-                    auto converted = stringToInt(num);
-                    if(converted.has_value() && winningnumbers.contains(converted.value())){
-                        count++;
-                    }
+    
+    for(auto &[card, copies]: cards){
+        std::cout << "orig card: " << card << " coupies " << copies << "\n";
+        for(int i = 0; i < copies; i++){
+            int count = 0;
+            auto values = splitString(tokens[card-1], '|');
+            auto winningnumbers = toset(values[0]);
+            auto nums = splitString(values[1], ' ');
+            for(const auto& num : nums){
+                auto converted = stringToInt(num);
+                if(converted.has_value() && winningnumbers.contains(converted.value())){
+                    count++;
                 }
-                if(count > 0){
-                    for(int i = winner+1; i <= winner+count; i++){
-                        cards[i] += 1;
-                        std::cout << "card i: " << i << " now has " << cards[i] << " copies\n";
+            }
+            if (count > 0) {
+                int lastCard = std::min(card + count, static_cast<int>(cards.size()));
+                for (int j = card + 1; j <= lastCard; j++) {
+                    if (cards.find(j) == cards.end()) {
+                        cards[j] = 1; 
+                    } else {
+                        cards[j] += 1; 
                     }
+                    std::cout << "card " << j << " now has " << cards[j] << " copies\n";
                 }
             }
         }
     }
-    for(const auto& [winner, copies]: cards){
+    for(const auto& [card, copies]: cards){
         summation += copies;
     }
     std::cout << "summation: " << summation << "\n";
-
 }
 
 std::vector<std::string> splitString(const std::string& str, char delimiter){
@@ -166,7 +170,7 @@ std::ostream& operator <<(std::ostream& o, const std::set<int>& set){
     return o;
 }
 
-void fillmap(std::unordered_map<int, int>& map){
+void fillmap(std::map<int, int>& map){
     for(int i = 1; i <= 199; i++){
         map[i] = 1;
     }
