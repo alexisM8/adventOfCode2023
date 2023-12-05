@@ -27,3 +27,5 @@ add_executable(DayThreeQ1 ${CMAKE_CURRENT_SOURCE_DIR}/src/DayThree/DayThreeQ1.cp
 add_executable(DayThreeQ2 ${CMAKE_CURRENT_SOURCE_DIR}/src/DayThree/DayThreeQ2.cpp)
 add_executable(DayFourQ1 ${CMAKE_CURRENT_SOURCE_DIR}/src/DayFour/DayFourQ1.cpp)
 add_executable(DayFourQ2 ${CMAKE_CURRENT_SOURCE_DIR}/src/DayFour/DayFourQ2.cpp)
+add_executable(DayFiveQ1 ${CMAKE_CURRENT_SOURCE_DIR}/src/DayFive/DayFiveQ1.cpp)
+add_executable(DayFiveQ2 ${CMAKE_CURRENT_SOURCE_DIR}/src/DayFive/DayFiveQ2.cpp)
