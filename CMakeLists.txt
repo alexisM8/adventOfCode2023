@@ -16,7 +16,7 @@ set(BUILD_STATIC FALSE CACHE STRING "Set this to link external libraries statica
 
 if(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -g")
-        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 endif()
 
 add_executable(DayOneQ1 ${CMAKE_CURRENT_SOURCE_DIR}/src/DayOne/DayOneQ1.cpp)

@@ -3,16 +3,23 @@
 #include <sstream>
 #include <fstream>
 #include <limits>
+#include <ranges>
 
-static constexpr char file_path[] = "puzzle_input/DayFive/DayFiveSample.txt";
+static constexpr char file_path[] = "puzzle_input/DayFive/DayFive.txt";
+
+struct MapData{
+    long long dst;
+    long long src;
+    long long rng;
+};
 
 std::vector<std::string> customSplit(const std::string& str);
 std::vector<std::string> splitString(const std::string& str, char delimiter);
-std::string convert_category(int input, const std::vector<std::string>& maps);
+std::string convert_category(const std::string& input, std::string& map);
 
 int main() {
     std::ifstream input(file_path);
-    int smallest = std::numeric_limits<int>::max();
+    double smallest = std::numeric_limits<double>::infinity();
 
     if (input.fail()) {
         std::cerr << "Error: could not open file " << file_path << "\n";
@@ -25,53 +32,69 @@ int main() {
 
     auto tokens = customSplit(file_contents);
 
-    std::vector<std::string> maps;
-    for (size_t i = 1; i < tokens.size(); ++i) {
-        std::string map = splitString(tokens[i], ':')[1];
-        maps.push_back(map);
-    }
+    std::stringstream seeds(splitString(tokens[0], ':')[1]);
+    std::string stos_map(splitString(tokens[1], ':')[1]);
+    std::string stof_map(splitString(tokens[2], ':')[1]);
+    std::string ftow_map(splitString(tokens[3], ':')[1]);
+    std::string wtol_map(splitString(tokens[4], ':')[1]);
+    std::string ltot_map(splitString(tokens[5], ':')[1]);
+    std::string ttoh_map(splitString(tokens[6], ':')[1]);
+    std::string htol_map(splitString(tokens[7], ':')[1]);
 
-    std::cout << "made it past all splitting\n";
+    std::cout << std::fixed;
 
-    std::vector<int> seeds;
-    std::stringstream seed_stream(splitString(tokens[0], ':')[1]);
-    int seed;
-    while (seed_stream >> seed) {
-        seeds.push_back(seed);
-    }
-
-    for (const auto& seed : seeds) {
-        int location = std::stoi(convert_category(seed, maps));
-        //std::cout << "seed: " << seed << " location: " << "\n";
-        if (location < smallest) {
-            smallest = location;
-        }
+    long long seed;
+    std::string next;
+    while (seeds >> seed) {
+            std::cout << "seed: " << seed;
+            next = convert_category(std::to_string(seed), stos_map);
+            std::cout << ", soil:  " << next;
+            next = convert_category(next, stof_map);
+            std::cout << ", fertilizer:  " << next;
+            next = convert_category(next, ftow_map);
+            std::cout << ", water:  " << next;
+            next = convert_category(next, wtol_map);
+            std::cout << ", light:  " << next;
+            next = convert_category(next, ltot_map);
+            std::cout << ", temperature:  " << next;
+            next = convert_category(next, ttoh_map);
+            std::cout << ", humidity:  " << next;
+            next = convert_category(next, htol_map);
+            std::cout << ", location:  " << next << "\n";
+            long long num = std::stoll(next);
+            if (num < smallest) {
+                smallest = num;
+            }
     }
 
     std::cout << "lowest location: " << smallest << "\n";
 }
 
-std::string convert_category(int input, const std::vector<std::string>& maps) {
-    int num = input;
+std::string convert_category(const std::string& input, std::string& map) {
+    long long num = std::stoll(input);
+    std::stringstream ss(map);
 
-    for (const auto& map : maps) {
-        std::vector<std::string> mapData = splitString(map, '\n');
-        std::cout  << map << "\n";
+    std::vector<MapData> mapData; // Define a struct to store map data
+
+    // Parse map data into a vector of structs
+    std::string line;
+    while (std::getline(ss, line)) {
+        if (line.empty())
+            continue; // Skip empty lines
         
-        for (const auto& line : mapData) {
-            if(line != ""){
-                std::vector<std::string> tokens = splitString(line, ' ');
-                //std::cout << tokens.size() << " sdfm\n";
-                int start = std::stoi(tokens[0]);
-                int end = std::stoi(tokens[1]);
-                int range = std::stoi(tokens[2]);
+        MapData data{};
+        auto splitdata = splitString(line, ' ');
 
+        data.dst = std::stoll(splitdata[0]);
+        data.src = std::stoll(splitdata[1]);
+        data.rng = std::stoll(splitdata[2]);
 
-                if (num >= start && num < start + range) {
-                    int distance = num - start;
-                    return std::to_string(end + distance);
-                }
-            }
+        mapData.push_back(data);
+    }
+    
+    for (const auto& data : mapData) {
+        if (num >= data.src && num < data.src + data.rng) {
+            return std::to_string(data.dst + (num - data.src));
         }
     }
     return std::to_string(num); // If not mapped, return the input number itself
