@@ -10,7 +10,6 @@ static std::map<std::string, int> suits = {
     {"A", 14},
     {"K", 13},
     {"Q", 12},
-    {"J", 11},
     {"T", 10},
     {"9", 9},
     {"8", 8},
@@ -90,6 +89,7 @@ int main(){
         }else if(obj1.type == obj2.type){
             for(int i = 0; i < obj1.hand.length(); i++){
                 if(suits[obj1.hand.substr(i, 1)] < suits[obj2.hand.substr(i, 1)]){
+                    std::cout << "obj1 suit: " << obj1.hand.substr(i, 1) << ", obj1 value: " << suits[obj1.hand.substr(i, 1)] << ", obj2 suit: " << obj2.hand.substr(i, 1) << " oobj2 value: "  << suits[obj2.hand.substr(i, 1)] << "\n";
                     return true;
                 }else if (suits[obj1.hand.substr(i, 1)] == suits[obj2.hand.substr(i, 1)]){
                     continue;
@@ -150,17 +150,22 @@ std::pair<int, int> getHandType(const std::string& hand, int bid) {
     int joker = 0;
     for(auto [key, value] : suitss){
         if(value > 0){
-            std::cout << "key: " << key << ", value: " << value <<"\n";
+            //std::cout << "key: " << key << ", value: " << value <<"\n";
             if(key != "J"){
                 combo.append(std::to_string(value));
             } else if(key == "J"){
                 joker = value;
             }
+            if(joker == 5){
+                std::cout << "key: " << key << ", value: " << value <<"\n";
+            }
         }
     }
 
     std::sort(combo.begin(), combo.end());
-    std::cout << "combo before: " << combo << ", jokers: " << joker;
+    if(joker == 5){
+        std::cout << "combo before: " << combo << ", jokers: " << joker;
+    }
     
 
     switch(joker){
@@ -192,13 +197,13 @@ std::pair<int, int> getHandType(const std::string& hand, int bid) {
             if(combo == "11"){
                 combo = "14";
             }else if(combo == "2"){
-                combo = 5;
+                combo = "5";
             }
             break;
         }
         case 4:{
             if(combo == "1"){
-                combo = 5;
+                combo = "5";
                 break;
             }
         }
@@ -209,7 +214,9 @@ std::pair<int, int> getHandType(const std::string& hand, int bid) {
         default: break;
     }
 
-    std::cout << ", combo After: " << combo << "\n";
+    if(joker == 5){
+        std::cout << ", combo After: " << combo << "\n";
+    }
 
     return std::make_pair(winning_hands[combo], bid);
 }
