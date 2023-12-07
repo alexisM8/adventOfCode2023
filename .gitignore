@@ -1,5 +1,6 @@
 # Prerequisites
 *.d
+*.cfg
 
 # Compiled Object files
 *.slo
@@ -33,4 +34,9 @@
 
 #folders
 build/
+bin/
+lib/
+
+#mac
+.DS_Store
 
