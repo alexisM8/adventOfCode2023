@@ -16,7 +16,7 @@ set(BUILD_STATIC FALSE CACHE STRING "Set this to link external libraries statica
 
 if(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -g")
-        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -qhot")
 endif()
 
 add_executable(DayOneQ1 ${CMAKE_CURRENT_SOURCE_DIR}/src/DayOne/DayOneQ1.cpp)
@@ -31,3 +31,5 @@ add_executable(DayFiveQ1 ${CMAKE_CURRENT_SOURCE_DIR}/src/DayFive/DayFiveQ1.cpp)
 add_executable(DayFiveQ2 ${CMAKE_CURRENT_SOURCE_DIR}/src/DayFive/DayFiveQ2.cpp)
 add_executable(DaySixQ1 ${CMAKE_CURRENT_SOURCE_DIR}/src/DaySix/DaySixQ1.cpp)
 add_executable(DaySixQ2 ${CMAKE_CURRENT_SOURCE_DIR}/src/DaySix/DaySixQ2.cpp)
+add_executable(DaySevenQ1 ${CMAKE_CURRENT_SOURCE_DIR}/src/DaySeven/DaySevenQ1.cpp)
+add_executable(DaySevenQ2 ${CMAKE_CURRENT_SOURCE_DIR}/src/DaySeven/DaySevenQ2.cpp)
