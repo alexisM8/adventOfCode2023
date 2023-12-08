@@ -8,6 +8,7 @@
 #include <numeric>
 #include <vector>
 
+
 static constexpr char file_path[] = "puzzle_input/DayEight/DayEightQ2Stripped.txt";
 
 std::vector<std::string> splitString(const std::string& str, char delimiter);
