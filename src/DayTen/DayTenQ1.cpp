@@ -40,7 +40,7 @@ int main(){
     std::queue<node> que;
     long length = BFS(tiles, row, col, que);
 
-    std::cout << "BFS returned: " << length <<  " should be: " << 6907 << "\n";
+    std::cout << "BFS returned: " << length/2 <<  " should be: " << 6907 << "\n";
 
 }
 
@@ -56,56 +56,40 @@ std::vector<std::string> splitStringStr(const std::string& str, char delimiter) 
 
 node getUpStairsNeighbors(int row, int col, const std::vector<std::string>& tiles){
     node invalid = {{-1, -1}, '.'};
-    if(row - 1 >= 0 and row - 1 < tiles.size()){
-        if(col >= 0 && col < tiles[row].size()){
-            return {{row-1, col}, tiles[row - 1][col]};
-        }else{
-            return invalid;
+    if(row - 1 >= 0 && row - 1 < tiles.size()){
+        if(col >= 0 && col < tiles[row - 1].size()){
+            return {{row - 1, col}, tiles[row - 1][col]};
         }
-    }else{
-        return invalid;
     }
     return invalid;
 }
 
 node getDownStairsNeighbors(int row, int col, const std::vector<std::string>& tiles){
     node invalid = {{-1, -1}, '.'};
-    if(row + 1>= 0 and row + 1 < tiles.size()){
-        if(col >= 0 && col < tiles[row].size()){
-            return {{row+1, col}, tiles[row + 1][col]};
-        }else{
-            return invalid;
+    if(row + 1 >= 0 && row + 1 < tiles.size()){
+        if(col >= 0 && col < tiles[row + 1].size()){
+            return {{row + 1, col}, tiles[row + 1][col]};
         }
-    }else{
-        return invalid;
     }
     return invalid;
 }
 
 node getLeftStairsNeighbors(int row, int col, const std::vector<std::string>& tiles){
     node invalid = {{-1, -1}, '.'};
-    if(row >= 0 and row < tiles.size()){
-        if(col - 1 >= 0 && col < tiles[row].size() - 1){
-            return {{row, col-1}, tiles[row][col - 1]};
-        }else{
-            return invalid;
+    if(row >= 0 && row < tiles.size()){
+        if(col - 1 >= 0 && col - 1 < tiles[row].size()){
+            return {{row, col - 1}, tiles[row][col - 1]};
         }
-    }else{
-        return invalid;
     }
     return invalid;
 }
 
 node getRightStairsNeighbors(int row, int col, const std::vector<std::string>& tiles){
     node invalid = {{-1, -1}, '.'};
-    if(row >= 0 and row < tiles.size()){
-        if(col + 1 >= 0 && col < tiles[row].size() + 1){
-            return {{row, col+1}, tiles[row][col + 1]};
-        }else{
-            return invalid;
+    if(row >= 0 && row < tiles.size()){
+        if(col + 1 >= 0 && col + 1 < tiles[row].size()){
+            return {{row, col + 1}, tiles[row][col + 1]};
         }
-    }else{
-        return invalid;
     }
     return invalid;
 }
@@ -117,28 +101,19 @@ long BFS(const std::vector<std::string>& grid, int start_row, int start_col, std
     long count = 0;
 
     que.push(nodestart);
-    while(!que.empty()){
-        std::cout << "set size: " << visited.size() <<  " queue size: " << que.size() << "\n";
-
+    while (!que.empty()) {
         node n = que.front();
         que.pop();
 
-        if(count == 0 and n.second == 'S'){
-
-        }else if(count > 0 and n.second == 'S'){
-            //break;
-        }
-
         visited.insert(n);
 
-        std::cout << "current ";
-        printNode(n);
-
         node up = getUpStairsNeighbors(n.first.first, n.first.second, grid);
-        node down  = getDownStairsNeighbors(n.first.first, n.first.second, grid);
+        node down = getDownStairsNeighbors(n.first.first, n.first.second, grid);
         node left = getLeftStairsNeighbors(n.first.first, n.first.second, grid);
         node right = getRightStairsNeighbors(n.first.first, n.first.second, grid);
 
+        std::cout << "current: ";
+        printNode(n);
         std::cout << "up node: ";
         printNode(up);
 
@@ -213,6 +188,10 @@ long BFS(const std::vector<std::string>& grid, int start_row, int start_col, std
                     que.push(left);
                     count++;
                 }
+                if(!visited.contains(down) and (down.second == 'L' || down.second == 'J' || down.second == '|')){
+                    que.push(down);
+                    count++;
+                }
                 break;
             }
             case 'S':{
@@ -238,7 +217,7 @@ long BFS(const std::vector<std::string>& grid, int start_row, int start_col, std
         }
         std::cout << "\n";
     }
-    return count+2;
+    return count+1;
 }
 
 void printNode(const node& n){
