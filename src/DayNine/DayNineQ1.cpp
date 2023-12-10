@@ -46,7 +46,7 @@ int main(){
         }
         int history = 0;
         for(int i = calc.size()-1; i >= 0; i--){
-            history = calc[i].front() - history;
+            history += calc[i].back();
         }
         summation += history;
         calc.clear();
