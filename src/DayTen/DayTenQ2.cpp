@@ -15,9 +15,9 @@ node getDownStairsNeighbors(int row, int column, const std::vector<std::string>&
 node getLeftStairsNeighbors(int row, int column, const std::vector<std::string>& tiles);
 node getRightStairsNeighbors(int row, int column, const std::vector<std::string>& tiles);
 std::vector<std::pair<int, int>> BFS(const std::vector<std::string>& grid, int start_row, int start_col, std::queue<std::pair<std::pair<int, int>, char>>& que);
-double polarAngle(const std::pair<int, int>& start, const std::pair<int, int>& p);
-bool compare(const std::pair<int, int>& start, const std::pair<int, int>& a, const std::pair<int, int>& b);
-std::pair<int, int> findStartingPoint(const std::vector<std::pair<int, int>>& points);
+bool isLeft(std::pair<int, int> a, std::pair<int, int> b, std::pair<int, int> c);
+bool isInsidePolygon(const std::vector<std::pair<int, int>>& polygon, std::pair<int, int> point);
+
 
 int main(){
     std::ifstream input_file(file_path);
@@ -40,27 +40,17 @@ int main(){
     std::queue<node> que;
     std::vector<std::pair<int, int>> points = BFS(tiles, row, col, que);
 
-    std::pair<int, int> start = findStartingPoint(points);
-
-    std::sort(points.begin(), points.end(), [start](const std::pair<int, int>& a, const std::pair<int, int>& b) {
-        return compare(start, a, b);
-    });
-
-    for(auto & p : points){
+    int count = 0;
+    for(auto& p : points){
         std::cout << "(" << p.first << ", " << p.second << ")\n";
+        count += isInsidePolygon(points, p);
     }
     
+    std::cout << "enclosed points: " << count << "\n";
 
-    int summation = 0;
-    int n = points.size();
-    points.push_back(points[0]);
-    for (int i = 0; i < n - 1; ++i) {
-        summation += (points[i].first * points[i+1].second - points[i+1].first * points[i].second) + (points[n].first * points[0].second - points[0].first * points[n].second) ;
-    }
-    summation = std::abs(summation); 
-    summation /= 2; 
-    std::cout << "shoelace formula returned: " << summation << "\n";
+    int ans = count*-1 + (points.size()/2) + 1;
 
+    std::cout << "area: " << ans << "\n";
 }
 
 std::vector<std::string> splitStringStr(const std::string& str, char delimiter) {
@@ -229,22 +219,26 @@ std::vector<std::pair<int, int>> BFS(const std::vector<std::string>& grid, int s
     return points;
 }
 
-double polarAngle(const std::pair<int, int>& start, const std::pair<int, int>& p) {
-    return std::atan2(p.second - start.second, p.first - start.first);
+bool isLeft(std::pair<int, int> a, std::pair<int, int> b, std::pair<int, int> c) {
+    return ((b.first - a.first) * (c.second - a.second) - (c.first - a.first) * (b.second - a.second)) > 0;
 }
 
-bool compare(const std::pair<int, int>& start, const std::pair<int, int>& a, const std::pair<int, int>& b) {
-    double angleA = polarAngle(start, a);
-    double angleB = polarAngle(start, b);
-    return angleA < angleB;
-}
+bool isInsidePolygon(const std::vector<std::pair<int, int>>& polygon, std::pair<int, int> point) {
+    int numIntersections = 0;
+    int n = polygon.size();
 
-std::pair<int, int> findStartingPoint(const std::vector<std::pair<int, int>>& points) {
-    std::pair<int, int> start = *points.begin();
-    for (const auto& p : points) {
-        if (p.second < start.second || (p.second == start.second && p.first < start.first)) {
-            start = p;
+    std::pair<int, int> extremePoint = {INT_MAX, point.second};
+
+    for (int i = 0; i < n; ++i) {
+        int next = (i + 1) % n;
+
+        if (isLeft(polygon[i], polygon[next], point) != isLeft(polygon[i], polygon[next], extremePoint) &&
+            std::min(polygon[i].first, polygon[next].first) < point.first &&
+            std::max(polygon[i].second, polygon[next].second) >= point.second &&
+            std::min(polygon[i].second, polygon[next].second) <= point.second) {
+            numIntersections++;
         }
     }
-    return start;
+
+    return (numIntersections % 2 == 1);
 }
